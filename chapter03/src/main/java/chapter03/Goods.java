@@ -12,6 +12,18 @@ public class Goods {
 		countOfGoods++; //내부에서 쓸 때는 생략가능
 	}
 	
+
+
+	public Goods(String name, int price, int countStock, int countSold) {
+		super();
+		this.name = name;
+		this.price = price;
+		this.countStock = countStock;
+		this.countSold = countSold;
+	}
+
+
+
 	public String getName() {
 		return name;
 	}
