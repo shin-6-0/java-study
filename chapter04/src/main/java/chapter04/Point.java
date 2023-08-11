@@ -26,6 +26,11 @@ public class Point{
 	}
 	
 	@Override
+	public int hashCode() {
+		return x;
+	}
+	
+	@Override
 	public boolean equals(Object obj) {
 		if(this==obj) return true;
 		if(obj==null) return false;
