@@ -1,7 +1,10 @@
 package prob01;
 
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Random;
 import java.util.Scanner;
+import java.util.Set;
 
 public class GugudanApp {
 
@@ -12,11 +15,9 @@ public class GugudanApp {
 		int r = randomize(1, 9);
 
 		resultNumber = l * r;
-
 		int[] answerNumbers = randomizeAnswers();
 		int loc = randomize(0, 8);
 		answerNumbers[loc] = resultNumber;
-
 		System.out.println(l + " x " + r + " = ?");
 
 		int length = answerNumbers.length;
@@ -49,11 +50,18 @@ public class GugudanApp {
 		/* 코드 작성(수정 가능) */
 		final int COUNT_ANSWER_NUMBER = 9;
 		int[] boardNumbers = new int[COUNT_ANSWER_NUMBER];
-		for(int i=0;i<9;i++) {
-			Random rd=new Random();
-			int a=rd.nextInt(9)+1;
-			int b=rd.nextInt(9)+1;
-			boardNumbers[i]=a*b;
+		Set<Integer> s=new HashSet<Integer>();
+		while(s.size()<9) {
+			int a=randomize(1,9);
+			int b=randomize(1,9);
+			s.add(a*b);
+		}
+		int i=0;
+		Iterator<Integer> iter = s.iterator();
+		
+		while(iter.hasNext()) {
+			boardNumbers[i]=iter.next();
+			i++;
 		}
 		return boardNumbers;
 	}
