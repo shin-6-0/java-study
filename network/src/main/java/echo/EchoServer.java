@@ -4,20 +4,15 @@ import java.io.*;
 import java.net.*;
 
 public class EchoServer {
-	private static final int PORT = 9000;
+	public static final int PORT = 9000;
 	public static void main(String[] args) {
 		ServerSocket serverSocket=null;
 		try {
-			//1. Server Socket 생성
 			serverSocket = new ServerSocket();
 			
-			//2. 바인딩(Binding)
-			//Socket에 InetSocketAddress(IPAddress + port)를 바인딩
-			//IPAddress : 0.0.0.0 : 특정 호스트 IP에 바인딩 하지 않는다.
 			serverSocket.bind(new InetSocketAddress("0.0.0.0",PORT),10);
 			log("starts...[port:"+PORT+"]");
 			
-			//3.accept
 			Socket socket = serverSocket.accept();//blocking 
 
 			try {
