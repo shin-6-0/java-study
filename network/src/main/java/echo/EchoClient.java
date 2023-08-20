@@ -1,26 +1,31 @@
 package echo;
 
-import java.io.*;
-import java.net.*;
-import java.util.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
+import java.net.InetSocketAddress;
+import java.net.Socket;
+import java.net.SocketException;
+import java.util.Scanner;
 
 public class EchoClient {
-	private static final String SERVER_IP="127.0.0.1";
+	private static final String SERVER_IP = "127.0.0.1";
+
 	public static void main(String[] args) {
 		Socket socket = null;
 		Scanner scanner = null;
+		
 		try {
-			//1. 소켓 생성
 			socket = new Socket();
 			
-			//2. 서버 연결
-			socket.connect(new InetSocketAddress(SERVER_IP,EchoServer.PORT));
+			socket.connect(new InetSocketAddress(SERVER_IP, EchoServer.PORT));
+			log("connected");
 			
-			//3. io stream 받아오기
-			InputStream is = socket.getInputStream();
-			OutputStream os = socket.getOutputStream();
-			
-			//4.Scanner 사용해서 읽기
+			PrintWriter pw = new PrintWriter(new OutputStreamWriter(socket.getOutputStream(), "utf-8"), true);
+			BufferedReader br = new BufferedReader(new InputStreamReader(socket.getInputStream(), "utf-8"));
+		
 			scanner = new Scanner(System.in);
 			while(true) {
 				System.out.print(">");
@@ -29,9 +34,7 @@ public class EchoClient {
 				if("exit".equals(line)) {
 					break;
 				}
-				PrintWriter pw = new PrintWriter(new OutputStreamWriter(os,"utf-8"),true);//t/f는 autoflush로 해두면 true
-				BufferedReader br = new BufferedReader(new InputStreamReader(is, "utf-8"));
-				
+
 				pw.println(line);
 				String data = br.readLine();
 				
@@ -40,19 +43,18 @@ public class EchoClient {
 					break;
 				}
 				
-				System.out.println("<"+data);
+				System.out.println("<" + data);
 			}
-
 		} catch (SocketException e) {
-			log(" suddenly closed by server");
+			System.out.println("[client] suddenly closed by server");
 		} catch (IOException e) {
-			log(" error:"+e);
-		}finally {
+			System.out.println("[client] error:" + e);
+		} finally {
 			try {
-				if(socket!=null && socket.isClosed()) {
+				if(socket != null && !socket.isClosed()) {
 					socket.close();
 				}
-				if(scanner!=null) {
+				if(scanner != null) {
 					scanner.close();
 				}
 			} catch (IOException e) {
@@ -61,8 +63,7 @@ public class EchoClient {
 		}
 	}
 	
-	private static void log(String message){
-		System.out.println("[EchoClient] "+message);
-	}
-
+	private static void log(String message) {
+		System.out.println("[EchoClient] " + message);
+	}	
 }
