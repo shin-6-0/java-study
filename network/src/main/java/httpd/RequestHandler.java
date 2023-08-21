@@ -45,6 +45,15 @@ public class RequestHandler extends Thread {
 			}
 
 			log(request);
+			
+			String[] tokens = request.split(" ");
+			if("GET".equals(tokens[0])) {
+				responseStaticResource(outputStream,tokens[1], tokens[2]);
+			}else {
+				//methods: POST, PUT, DELETE, + HEAD, CONNECT 도 있음
+				//SimpleHttpServer에서는 무시(400 Bad Request)
+				//responseStatic400Error(outputStream,tokens[2]);
+			}
 
 			// logging Remote Host IP Address & Port
 			InetSocketAddress inetSocketAddress = ( InetSocketAddress )socket.getRemoteSocketAddress();
@@ -71,6 +80,11 @@ public class RequestHandler extends Thread {
 				log( "error:" + ex );
 			}
 		}			
+	}
+
+	private void responseStaticResource(
+			OutputStream outputStream, String url, String protocol) {
+		
 	}
 
 	public void log( String message ) {
