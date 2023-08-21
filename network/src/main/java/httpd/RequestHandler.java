@@ -129,6 +129,7 @@ public class RequestHandler extends Thread {
 		//Content-Type:text/html; charset=utf-8\r\n
 		//\r\n
 		//error/400.html 내용
+		
 	}
 
 	public void log( String message ) {
