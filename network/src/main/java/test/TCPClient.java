@@ -14,6 +14,25 @@ public class TCPClient {
 			//1. 소켓 생성
 			socket = new Socket();
 			
+			//1-1. 소켓 버퍼 사이즈 확인
+			int rcvBufferSize = socket.getReceiveBufferSize();
+			int sndBufferSize = socket.getSendBufferSize();
+			
+			System.out.println(rcvBufferSize+":"+sndBufferSize);
+			
+			//1-3. SO_NODELAY(Nagle Algorithm off)
+			socket.setTcpNoDelay(true);
+			
+			//1-4. SO_TIMEOUT
+			socket.setSoTimeout(3000);//3초!
+			
+			//1-2. 소켓 버퍼사이즈 변경
+			socket.setReceiveBufferSize(1024*10);
+			socket.setSendBufferSize(1024*10);
+			rcvBufferSize = socket.getReceiveBufferSize();
+			sndBufferSize = socket.getSendBufferSize();
+			System.out.println(rcvBufferSize+":"+sndBufferSize);
+
 			//2. 서버 연결
 			socket.connect(new InetSocketAddress(SERVER_IP,SERVER_PORT));
 			
@@ -35,7 +54,19 @@ public class TCPClient {
 			}
 			data =new String(buffer, 0, readByteCount,"utf-8");
 			System.out.println("[client] received:"+data);
-		} catch (SocketException e) {
+			
+			//so_timeout 옵션 테스트용
+			try {
+				Thread.sleep(3000);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+			
+			//6. 데이터 쓰기
+			os.write(data.getBytes("utf-8"));
+		} catch(SocketTimeoutException e) {
+			System.out.println("[client] timeout!! ");
+		}catch (SocketException e) {
 			System.out.println("[client] suddenly closed by server");
 		} catch (IOException e) {
 			System.out.println("[client] error:"+e);
