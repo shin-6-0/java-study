@@ -19,7 +19,7 @@ public class ChatClient {
 
 			//3. 연결
 			socket.connect(new InetSocketAddress(SERVER_IP, SERVER_PORT));
-			log("connected");
+			log("채팅 서버 연결 완료");
 			
 			//4. reader/writer 생성
 			PrintWriter pw = new PrintWriter( new OutputStreamWriter(socket.getOutputStream(),"UTF-8" ), true );

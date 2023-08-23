@@ -12,6 +12,14 @@ import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.net.Socket;
+import java.net.SocketException;
+
+import javax.print.attribute.standard.Finishings;
 
 public class ChatWindow {
 
@@ -20,13 +28,19 @@ public class ChatWindow {
 	private Button buttonSend;
 	private TextField textField;
 	private TextArea textArea;
+	private Socket socket;
+	private String name;
+	private PrintWriter pw;
 
-	public ChatWindow(String name) {
+	public ChatWindow(String name, Socket socket,PrintWriter pw) {
 		frame = new Frame(name);
 		pannel = new Panel();
 		buttonSend = new Button("Send");
 		textField = new TextField();
 		textArea = new TextArea(30, 80);
+		this.socket = socket;
+		this.name=name;
+		this.pw=pw;
 	}
 
 	public void show() {
@@ -40,9 +54,10 @@ public class ChatWindow {
 				sendMessage();
 			}
 		});
-		buttonSend.addActionListener((ActionEvent e)->{
-			//이 메소드는 액션이벤트가 들어가야하니까 actionPerformed를 알아서 소환&추론
-		});
+		/*
+		 * buttonSend.addActionListener((ActionEvent e)->{ //이 메소드는 액션이벤트가 들어가야하니까
+		 * actionPerformed를 알아서 소환&추론 });
+		 */
 		// Textfield
 		textField.setColumns(80);
 		textField.addKeyListener(new KeyAdapter() {
@@ -50,7 +65,7 @@ public class ChatWindow {
 			public void keyPressed(KeyEvent e) {
 				char keyCode = e.getKeyChar();
 				if(keyCode==KeyEvent.VK_ENTER) {
-					
+					sendMessage();
 				}
 			}
 		});
@@ -75,15 +90,20 @@ public class ChatWindow {
 		});
 		frame.setVisible(true);
 		frame.pack();
-		
-		//IOStream  받아오기
+				
 		//ChatClientThread 생성하고 실행
-		
+		new ChatClientThread(socket).start();
 	}
 	private void finish() {
 		//quit 프로토콜 구현하기
-		
-		
+		pw.println("quit");
+		try {
+			if(socket != null && socket.isClosed() == false){
+				socket.close();
+			}
+		} catch (IOException e) {
+			log("error:"+e);
+		}
 		//exit java(JVM)
 		System.exit(0);//JVM 끄는 명령어
 	}
@@ -96,7 +116,12 @@ public class ChatWindow {
 		
 		//ChatClientThread 에서 서버로부터 받은 메세지가 있다고 치고, ~~
 		//소켓에서 받아온 글자를 입력해보기
-		updateTextArea("마이콜 : "+message);
+		if("quit".equals(message)) {
+			finish();
+		} else{
+			updateTextArea(this.name+" : "+message);
+			pw.println("message:" + message);
+		}
 	}
 	private void updateTextArea(String message) {
 		textArea.append(message);
@@ -105,9 +130,42 @@ public class ChatWindow {
 	
 	//클래스를 내부에 만듬
 	private class ChatClientThread extends Thread{
+		private Socket socket;
+		
+		public ChatClientThread(Socket socket) {
+			this.socket = socket;
+		}
+
 		@Override
 		public void run() {
-			sendMessage();
+			updateTextArea("");
+			try{
+				BufferedReader br = new BufferedReader(new InputStreamReader(socket.getInputStream(), "UTF-8"));
+
+				while(true) {
+					String message = br.readLine();
+					if(message == null) {
+						break;
+					}
+					updateTextArea(message);
+				}
+			} catch(SocketException e){
+				log("error:" + e);
+			} catch(IOException e){
+				log("error:" + e);
+			} finally {
+				try {
+					if(socket != null && !socket.isClosed()) {
+						socket.close();
+					}
+				} catch (IOException e) {
+					log("error:" + e);
+				}
+			}
 		}
+	}
+	
+	private void log(String message) {
+		System.out.println("[ChatClient]"  + message);
 	}
 }
