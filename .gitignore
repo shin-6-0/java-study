@@ -2,7 +2,7 @@
 **/target/
 **/build/
 **/out
-#
+
 # eclipse
 **/.settings
 **/.classpath
